@@ -11,7 +11,9 @@ use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\entity\EntityDamageByBlockEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
-
+use pocketmine\entity\Human;
+use pocketmine\inventory\Inventory;
+use pocketmine\item\Item;
 class Main extends PluginBase implements Listener { //Added "implements Listener" because of the Listener event
 
     public function onEnable() {
@@ -22,17 +24,7 @@ class Main extends PluginBase implements Listener { //Added "implements Listener
     public function onLoad(){
       $this->reloadConfig();
     }
-
-    public function onDeath(PlayerDeathEvent $event){
-      $event->setDeathMessage(null);
-      $player = $event->getPlayer();
-      $name = $player->getName();
-      $entity = $event->getEntity();
-      $msgderive = $event->deriveMessage($entity->getDisplayName(), $entity->getLastDamageCause());
-
-      //$this->getServer()->broadcastMessage("[§aDEBUG§r] $msgderive");
-      //$this->getLogger()->info($msgderive);
-
+    public function DeathMSG($msgderive, $entity, $name, $player){
       switch($msgderive){
         case "death.attack.generic":
           $genericdeath = str_replace("{name}", "$name", $this->getConfig()->get("generic"));
@@ -41,8 +33,8 @@ class Main extends PluginBase implements Listener { //Added "implements Listener
         case "death.attack.player":
           $playerdeat = str_replace("{name}", "$name", $this->getConfig()->get("player"));
           $playerdeath = str_replace("{killer}", $entity->getLastDamageCause()->getDamager()->getDisplayName(), $playerdeat);
-          $playerdeathf = str_replace("{weapon}", $entity->getLastDamageCause()->getDamager()->getInventory()->getItemInHand()->getName() , $playerdeath)
-          $this->getServer()->broadcastMessage($playerdeathf);
+          $playerdeath1 = str_replace("{weapon}", $entity->getLastDamageCause()->getDamager()->getInventory()->getItemInHand()->getName(), $playerdeath);
+          $this->getServer()->broadcastMessage($playerdeath1);
           break;
         case "death.attack.mob":
           $mobdeat = str_replace("{name}", "$name", $this->getConfig()->get("mob"));
@@ -98,6 +90,18 @@ class Main extends PluginBase implements Listener { //Added "implements Listener
           break;
 
       }
+
+    }
+    public function onDeath(PlayerDeathEvent $event){
+      $event->setDeathMessage(null);
+      $player = $event->getPlayer();
+      $name = $player->getName();
+      $entity = $event->getEntity();
+      $msgderive = $event->deriveMessage($entity->getDisplayName(), $entity->getLastDamageCause());
+
+      //$this->getServer()->broadcastMessage("[§aDEBUG§r] $msgderive");
+      //$this->getLogger()->info($msgderive);
+      $this->DeathMSG($msgderive, $entity, $name, $player);
 
     }
 }
